@@ -79,9 +79,10 @@ void *messageReceiveHandler(void *args) {
 	while(1) {
 		byte buffer[6000];
 		memset(buffer, 0, 6000);
-		recv(server, buffer, 6000, 0);
+		if(recv(server, buffer, 6000, 0) == 0) break;
 		printMessage(buffer);
 	}
+	pthread_exit(NULL);
 }
 
 void printMessage(byte *message) {
@@ -134,7 +135,8 @@ int main(int argc, char **argv) {
 		if(strlen(message) == 0) continue;
 
 		send(serverSocket, buffer, strlen(buffer), 0);
-	}	
+	}
+	printf("EXITING!\n");
 	pthread_exit(thread);
 	close(serverSocket);
 	return 0;

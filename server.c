@@ -40,21 +40,28 @@ struct clientMessage {
 
 void *connectionHandler(void *args) {
 	struct client_args *clientArguments = (struct client_args *)args;
-
+	
+	byte name[50];
 	byte newConn[100] = "SERVER                                                  \x1B[32mUser: (\x1B[33m";
 	byte buffer[6000];
-	recv(clientArguments->socket, buffer, 100, 0); 
+	recv(clientArguments->socket, buffer, 100, 0);
+	strcpy(name, buffer);
 	strcat(newConn, buffer);
 	strcat(newConn, "\x1B[32m) Connected!\033[0m");
 	broadcastMessage(clientArguments->socket, newConn);
 
 	while(1) {
 		memset(buffer, 0, 6000);
-		if(recv(clientArguments->socket, buffer, 6000, 0) < 0);
+		if(recv(clientArguments->socket, buffer, 6000, 0) == 0) break;
 		printf("Message received! Broadcasting . . .\n");
 		printf("[[%s]]\n",buffer);
 		broadcastMessage(clientArguments->socket, buffer);
 	}
+	strcpy(newConn, "SERVER                                                  \x1B[32mUser: (\x1B[33m");
+	strcat(newConn, name);
+	strcat(newConn, "\x1B[32m) Disconnected!\033[0m");
+	broadcastMessage(clientArguments->socket, newConn);
+	
 	printf("HE LEFT!!!!\n");
 	clientDisconnect(clientArguments->socket, clientArguments->clientIndex);
 	pthread_exit(NULL);
@@ -71,6 +78,13 @@ void broadcastMessage(int sock, byte *buffer) {
 void clientDisconnect(int sock, int index) {
 	c_c--;
 	close(clients[index]);
+	remove_element(clients, index, 5);
+}
+
+void remove_element(int *array, int index, int array_length)
+{
+   int i;
+   for(i = index; i < array_length - 1; i++) array[i] = array[i + 1];
 }
 
 int main() {
