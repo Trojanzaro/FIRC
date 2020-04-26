@@ -3,7 +3,8 @@ A Fake IRC program
 
 Make sure to compile both programs with the `-pthread` header included
 ```
-$ gcc client.c -o client -pthread && gcc server.c -o server -pthread
+$ gcc client.c -o client -pthread 
+$ gcc server.c -o server -pthread
 ```
 
 To run the client you only need to include the arguments:
