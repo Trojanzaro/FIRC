@@ -9,7 +9,9 @@ $ gcc server.c -o server -pthread
 
 To run the client you only need to include the arguments:
 
-1) Server's IP (No hostname resolution implemented yet sorry :-p )
+1) Server's IP or hostname (Yay! Implemented :-p )
+
+3) Server's port (1234 By default)
 	
 2) Username (50 chars only) to appear in the chatroom
 	
@@ -22,5 +24,3 @@ To run the server you only need to run it
 ```
 $ ./server
 ```
-
-Server runs on port 1234

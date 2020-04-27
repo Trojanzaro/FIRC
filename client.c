@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 #include <pthread.h>
 #include <string.h>
@@ -101,17 +102,50 @@ void printMessage(byte *message) {
 
 int main(int argc, char **argv) {
 	pthread_t thread;
-	int serverSocket, acceptSocket;
+	int serverSocket, acceptSocket, s;
 	struct sockaddr_in bindAddress;
 	struct sockaddr connectionAddress_t;
+	struct addrinfo hints;
+	struct addrinfo *result, *rp;
 
-	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	 if (argc < 4) {
+               fprintf(stderr, "Usage: %s host port username...\n", argv[0]);
+               exit(EXIT_FAILURE);
+           }
 
-	bindAddress.sin_family = AF_INET;
-	bindAddress.sin_port = htons(1234);
-	inet_pton(AF_INET, argv[1], &bindAddress.sin_addr.s_addr);
+           /* Obtain address(es) matching host/port */
 
-	connect(serverSocket, (struct sockaddr *)&bindAddress, sizeof(bindAddress));
+           memset(&hints, 0, sizeof(struct addrinfo));
+           hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+           hints.ai_socktype = SOCK_STREAM; 
+           hints.ai_flags = 0;
+           hints.ai_protocol = 0;          /* Any protocol */
+
+           s = getaddrinfo(argv[1], argv[2], &hints, &result);
+           if (s != 0) {
+               fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+               exit(EXIT_FAILURE);
+           }
+           
+           for (rp = result; rp != NULL; rp = rp->ai_next) {
+               serverSocket = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+               if (serverSocket == -1)
+                   continue;
+
+               if (connect(serverSocket, rp->ai_addr, rp->ai_addrlen) != -1)
+                   break;                  /* Success */
+
+               close(serverSocket);
+           }
+           
+           
+           if (rp == NULL) {               /* No address succeeded */
+               fprintf(stderr, "Could not connect\n");
+               exit(EXIT_FAILURE);
+           }
+
+           freeaddrinfo(result);           /* No longer needed */
+           
 	send(serverSocket, argv[2], strlen(argv[2]), 0);
 
 	pthread_create (&thread, NULL, messageReceiveHandler, (void *)serverSocket);
