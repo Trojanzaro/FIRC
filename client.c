@@ -130,7 +130,6 @@ int main(int argc, char **argv) {
 		for(i=0;i<50-strlen(argv[2]);i++)
 			strcat(buffer, " ");
 		strcat(buffer, message);
-		printMessage(buffer);
 
 		if(strlen(message) == 0) continue;
 

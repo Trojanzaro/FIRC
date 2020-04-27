@@ -70,8 +70,7 @@ void *connectionHandler(void *args) {
 void broadcastMessage(int sock, byte *buffer) {
 	int i;
 	for(i=0; i<5; i++)
-		if(clients[i] == sock) continue;
-		else send(clients[i], buffer, strlen(buffer), 0);
+		send(clients[i], buffer, strlen(buffer), 0);
 		
 }
 
