@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 
            freeaddrinfo(result);           /* No longer needed */
            
-	send(serverSocket, argv[2], strlen(argv[2]), 0);
+	send(serverSocket, argv[3], strlen(argv[3]), 0);
 
 	pthread_create (&thread, NULL, messageReceiveHandler, (void *)serverSocket);
 	while(1) {
@@ -159,9 +159,9 @@ int main(int argc, char **argv) {
 
 		if(strcmp(message, "/quit") == 0) break;
 
-		memcpy(buffer, argv[2], strlen(argv[2]));
+		memcpy(buffer, argv[3], strlen(argv[3]));
 		int i;
-		for(i=0;i<50-strlen(argv[2]);i++)
+		for(i=0;i<50-strlen(argv[3]);i++)
 			strcat(buffer, " ");
 		strcat(buffer, message);
 
